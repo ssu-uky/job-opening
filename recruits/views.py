@@ -1,5 +1,7 @@
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404
+import json
+from django.http import JsonResponse, HttpResponse
+
+from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
@@ -73,7 +75,17 @@ class RecruitDetailView(APIView):
     def get(self, request, pk):
         recruit = self.get_object(pk)
         serializer = RecruitSerializer(recruit)
-        return Response(serializer.data)
+        
+        same_company_recruits = Recruit.objects.filter(company=recruit.company).exclude(pk=pk)
+        another_recruits = [{"id": recruit.id, "title": recruit.title} for recruit in same_company_recruits]
+        # another_recruits = [recruit.id for recruit in same_company_recruits]
+        
+        serializer = RecruitSerializer(recruit)
+        recruit_data = serializer.data
+        
+        recruit_data["same_company_recruits"] = another_recruits
+        
+        return Response(recruit_data)
 
     def put(self, request, pk):
         recruit = self.get_object(pk)
