@@ -3,20 +3,40 @@ from rest_framework import serializers
 
 
 class RecruitSerializer(serializers.ModelSerializer):
-    company_name = serializers.SerializerMethodField()
+    company = serializers.SerializerMethodField()
     
     class Meta:
         model = Recruit
         fields = (
             "id",
-            "company_name",
+            "company",
             "title",
             "position",
             "reward",
             "skill",
             "content",
         )
-        read_only_fields = ("pk",)
+        read_only_fields = ("id",)
+
+    def get_company(self, obj):
+        return obj.company.company_name
+
+
+class RecruitListSerializer(serializers.ModelSerializer):
+    company = serializers.SerializerMethodField()
     
-    def get_company_name(self, obj):
+    class Meta:
+        model = Recruit
+        fields = (
+            "id",
+            "company",
+            "title",
+            "position",
+            "reward",
+            "skill",
+            "content",
+        )
+        read_only_fields = ("id",)
+    
+    def get_company(self, obj):
         return obj.company.company_name
