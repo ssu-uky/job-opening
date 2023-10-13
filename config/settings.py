@@ -24,7 +24,10 @@ THIRD_PARTY_APPS = [
     "rest_framework",
 ]
 
-CUSTOM_APPS = []
+CUSTOM_APPS = [
+    "companies.apps.CompaniesConfig",
+    "recruits.apps.RecruitsConfig",
+]
 
 SYSTEM_APPS = [
     "django.contrib.admin",
@@ -102,14 +105,16 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+now = datetime.now()
 
-TIME_ZONE = "UTC"
+LANGUAGE_CODE = "ko-kr"
 
-USE_I18N = True
+TIME_ZONE = "Asia/Seoul"
 
-USE_TZ = True
+now.strftime("%Y-%m-%d, H:%M:%S")
 
+
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

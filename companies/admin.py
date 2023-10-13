@@ -6,14 +6,14 @@ from . import models
 @admin.register(models.Company)
 class CompanyAdmin(admin.ModelAdmin):
     list_display = (
-        "pk",
+        "id",
         "company_name",
         "address",
         "country",
         "city",
     )
     list_display_links = (
-        "pk",
+        "id",
         "company_name",
     )
     list_filter = (

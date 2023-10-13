@@ -6,7 +6,7 @@ from . import models
 @admin.register(models.Recruit)
 class RecruitAdmin(admin.ModelAdmin):
     list_display = (
-        "pk",
+        "id",
         "company",
         "title",
         "position",
@@ -14,7 +14,7 @@ class RecruitAdmin(admin.ModelAdmin):
         "skill",
     )
     list_display_links = (
-        "pk",
+        "id",
         "company",
         "title",
     )
