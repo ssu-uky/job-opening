@@ -14,3 +14,17 @@ class CompanySerializer(serializers.ModelSerializer):
         )
 
     read_only_fields = ("id",)
+
+
+class CompanyRecruitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = (
+            # "id",
+            "company_name",
+            "country",
+            "city",
+            # "recruit_set",
+        )
+
+    read_only_fields = ("id",)

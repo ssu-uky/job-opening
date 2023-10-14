@@ -1,10 +1,9 @@
-import json
-from django.http import JsonResponse, HttpResponse
-
-from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
+from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
 
 from companies.models import Company
@@ -49,12 +48,20 @@ class RecruitListView(APIView):
     채용공고 리스트 / 검색가능
     """
 
-    def get(self, request):
-        company_name = request.GET.get("search")
+    # http://127.0.0.1:8000/api/company/list/?search=검색어
 
-        if company_name:
-            company = get_object_or_404(Company, company_name=company_name)
-            recruits = Recruit.objects.filter(company=company)
+    def get(self, request):
+        search_keyword = request.GET.get("search")
+
+        if search_keyword:
+            recruits = Recruit.objects.filter(
+                Q(company__company_name__icontains=search_keyword)
+                | Q(title__icontains=search_keyword)
+                | Q(position__icontains=search_keyword)
+                | Q(reward__icontains=search_keyword)
+                | Q(skill__icontains=search_keyword)
+                | Q(content__icontains=search_keyword)
+            )
         else:
             recruits = Recruit.objects.all()
 
@@ -66,25 +73,31 @@ class RecruitListView(APIView):
 
 
 class RecruitDetailView(APIView):
+    """공고 조회 및 수정, 삭제"""
+
     def get_object(self, pk):
         try:
             return Recruit.objects.get(pk=pk)
         except Recruit.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            raise NotFound
 
     def get(self, request, pk):
         recruit = self.get_object(pk)
-        serializer = RecruitSerializer(recruit)
-        
-        same_company_recruits = Recruit.objects.filter(company=recruit.company).exclude(pk=pk)
-        another_recruits = [{"id": recruit.id, "title": recruit.title} for recruit in same_company_recruits]
-        # another_recruits = [recruit.id for recruit in same_company_recruits]
-        
+
+        same_company_recruits = Recruit.objects.filter(company=recruit.company).exclude(
+            pk=pk
+        )
+
+        another_recruits = [
+            {"id": recruit.id, "title": recruit.title}
+            for recruit in same_company_recruits
+        ]
+
         serializer = RecruitSerializer(recruit)
         recruit_data = serializer.data
-        
+
         recruit_data["same_company_recruits"] = another_recruits
-        
+
         return Response(recruit_data)
 
     def put(self, request, pk):
@@ -109,6 +122,12 @@ class RecruitDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        recruit = self.get_object(pk)
-        recruit.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            recruit = self.get_object(pk)
+            recruit.delete()
+            return Response(
+                {"message": "삭제되었습니다."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        except Recruit.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
