@@ -18,9 +18,8 @@ class NewCompanyView(APIView):
         serializer = CompanySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            company_data = serializer.data
             return Response(
-                {"message": "회사가 등록되었습니다.", "회사 정보": company_data},
+                serializer.data,
                 status=status.HTTP_201_CREATED,
             )
         else:

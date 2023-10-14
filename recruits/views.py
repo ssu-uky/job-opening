@@ -32,11 +32,9 @@ class CreateRecruitView(APIView):
                     {"message": "회사를 찾을 수 없습니다."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-
-            recruit = serializer.save(company=company)
-            recruit_data = serializer.data
+            serializer.save(company=company)
             return Response(
-                {"message": "공고글이 생성되었습니다.", "공고 내용": recruit_data},
+                serializer.data,
                 status=status.HTTP_201_CREATED,
             )
         else:
@@ -116,7 +114,7 @@ class RecruitDetailView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(
-                {"message": "공고글이 수정되었습니다.", "공고 내용": serializer.data},
+                serializer.data,
                 status=status.HTTP_200_OK,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
