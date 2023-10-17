@@ -60,6 +60,11 @@ class RecruitListView(APIView):
                 | Q(skill__icontains=search_keyword)
                 | Q(content__icontains=search_keyword)
             ).order_by("-created_at")
+
+            if not recruits:
+                return Response(
+                    {"message": "검색 결과가 없습니다."}, status=status.HTTP_404_NOT_FOUND
+                )
         else:
             recruits = Recruit.objects.all().order_by("-created_at")
 
