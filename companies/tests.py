@@ -19,7 +19,7 @@ def create_company():
 
 
 @pytest.mark.django_db
-def test_new_company_view(create_company):
+def test_new_company(create_company):
     """회사 생성 테스트"""
     url = reverse("new_company")
     data = {
@@ -31,9 +31,7 @@ def test_new_company_view(create_company):
     response = client.post(url, data, format="json")
     assert response.status_code == status.HTTP_201_CREATED
     assert Company.objects.count() == 2
-    assert (
-        Company.objects.get(id=response.data["id"]).company_name == "new_test_company"
-    )
+    assert Company.objects.get(id=response.data["id"]).company_name == "new_test_company"
 
 
 @pytest.mark.django_db
@@ -53,7 +51,7 @@ def duplicate_company_name_test(create_company):
 
 
 @pytest.mark.django_db
-def test_company_list_view(create_company):
+def test_company_list(create_company):
     """회사 리스트 조회"""
     url = reverse("company_list")
     response = client.get(url, format="json")
@@ -67,14 +65,14 @@ def test_company_list_view(create_company):
 
 
 @pytest.mark.django_db
-def test_company_detail_view(create_company):
+def test_company_detail(create_company):
     """회사 조회, 수정, 삭제 테스트"""
     url = reverse("company_detail", kwargs={"pk": create_company.id})
 
     # GET
     response = client.get(url, format="json")
     assert response.status_code == status.HTTP_200_OK
-    company = Company.objects.get(id=response.data["id"])
+    company = Company.objects.get(id=create_company.id)
 
     # assert company.company_name == create_company.company_name
     # assert company.address == create_company.address

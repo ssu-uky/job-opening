@@ -59,9 +59,9 @@ class RecruitListView(APIView):
                 | Q(reward__icontains=search_keyword)
                 | Q(skill__icontains=search_keyword)
                 | Q(content__icontains=search_keyword)
-            )
+            ).order_by("-created_at")
         else:
-            recruits = Recruit.objects.all()
+            recruits = Recruit.objects.all().order_by("-created_at")
 
         paginator = PageNumberPagination()
         paginated_recruits = paginator.paginate_queryset(recruits, request)
