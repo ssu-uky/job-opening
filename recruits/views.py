@@ -11,7 +11,7 @@ from .models import Recruit
 from .serializers import RecruitSerializer, RecruitListSerializer
 
 
-class CreateRecruitView(APIView):
+class NewRecruitView(APIView):
     """공고글 생성"""
 
     def get(self, request):
