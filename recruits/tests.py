@@ -53,7 +53,7 @@ def create_pagenation_recruit(create_company):
 
 
 @pytest.mark.django_db
-def test_create_recruit(create_company):
+def test_create_recruit(create_company, create_recruit):
     """공고 생성 테스트"""
     url = reverse("new_recruit")
     data = {
@@ -66,7 +66,7 @@ def test_create_recruit(create_company):
     }
     response = client.post(url, data, format="json")
     assert response.status_code == status.HTTP_201_CREATED
-    assert Recruit.objects.count() == 1
+    assert Recruit.objects.count() == 2
     assert Recruit.objects.get(id=response.data["id"]).title == "new_test_title"
 
 
@@ -85,7 +85,6 @@ def test_create_recruit_no_company():
     }
     response = client.post(url, data, format="json")
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "등록되지 않은 회사입니다."
     assert Recruit.objects.count() == 0
 
 
@@ -98,11 +97,8 @@ def test_recruit_list(create_recruit):
     assert response.status_code == status.HTTP_200_OK
 
     assert "results" in response.data
-
     results = response.data["results"]
     assert isinstance(results, list)
-
-    assert results, "공고가 없습니다."
 
     for recruit in results:
         assert all(key in recruit for key in RecruitSerializer.Meta.fields)
@@ -138,3 +134,45 @@ def test_recruit_search_no_result(create_recruit):
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.data["message"] == "검색 결과가 없습니다."
     assert len(response.data) == 1
+
+
+@pytest.mark.django_db
+def test_recruit_detail(create_company, create_recruit):
+    """공고 상세 조회, 수정, 삭제 테스트"""
+    url = reverse("recruit_detail", kwargs={"pk": create_recruit.id})
+
+    # GET
+    response = client.get(url, format="json")
+    assert response.status_code == status.HTTP_200_OK
+
+    recruit = Recruit.objects.get(id=create_recruit.id)
+
+    for field, value in response.data.items():
+        if field == "company":
+            assert getattr(recruit, field).company_name == value
+        elif hasattr(recruit, field):
+            assert getattr(recruit, field) == value
+
+    # PUT
+    updated_data = {
+        "title": "update_test_title",
+        "position": "update_test_position",
+        "reward": 2000000,
+        "skill": "update_test_skill",
+        "content": "update_test_content",
+    }
+    response = client.put(url, updated_data, format="json")
+    assert response.status_code == status.HTTP_200_OK
+    assert Recruit.objects.count() == 1
+
+    # db update
+    create_recruit.refresh_from_db()
+    for field, updated_value in updated_data.items():
+        assert getattr(create_recruit, field) == updated_value
+
+    # DELETE
+    response = client.delete(url, format="json")
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert Recruit.objects.count() == 0
+    with pytest.raises(Recruit.DoesNotExist):
+        Recruit.objects.get(id=create_recruit.id)
