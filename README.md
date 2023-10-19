@@ -6,6 +6,22 @@ pip freeze > requirements.txt
 ```py
 python manage.py runserver
 ```
+# testcode 실행
+```py
+pytest
+```
+### companies 실행
+```py
+pytest companies/tests.py
+```
+### recruits 실행
+```py
+pytest recruits/tests.py
+```
+### users 실행
+```py
+pytest users/tests.py
+```
 ---
 ## 1. Company 등록
 http://127.0.0.1:8000/api/company/new/
@@ -14,7 +30,7 @@ http://127.0.0.1:8000/api/company/new/
 {
     "company_name":"다음",
     "address":"서울시 강남구 서초동",
-    "country":"대한민국",
+    "country":"대한민국",햣
     "city":"서울"
 }
 ```
